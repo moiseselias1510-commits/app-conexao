@@ -3,117 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <title>SemRosto</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background:#f2f2f2;
   margin:0;
+  font-family: Arial, sans-serif;
+  background:#0f0f0f;
+  color:#fff;
 }
 
-.container {
-  max-width:420px;
-  margin:40px auto;
-  background:#fff;
-  padding:22px;
-  border-radius:14px;
-  box-shadow:0 0 10px rgba(0,0,0,.1);
+.hidden { display:none; }
+
+.card {
+  background:#1b1b1b;
+  padding:20px;
+  margin:20px;
+  border-radius:10px;
 }
 
-h1,h2 { text-align:center; }
-
-input, textarea {
+input, textarea, button {
   width:100%;
   padding:10px;
-  margin:8px 0;
-  border-radius:6px;
-  border:1px solid #ccc;
-}
-
-textarea { resize:none; height:80px; }
-
-button {
-  width:100%;
-  padding:12px;
   margin-top:10px;
   border:none;
-  border-radius:8px;
-  background:#000;
+  border-radius:6px;
+}
+
+button {
+  background:#6a5acd;
   color:#fff;
-  font-size:15px;
   cursor:pointer;
 }
 
-button.sec { background:#666; }
-
-.card {
-  background:#eee;
-  padding:12px;
-  border-radius:10px;
-  margin:10px 0;
+.menu {
+  position:fixed;
+  left:0;
+  top:0;
+  width:60px;
+  height:100%;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-top:10px;
 }
-small { color:#666; }
+
+.menu button {
+  width:40px;
+  margin:10px 0;
+  font-size:18px;
+}
+
+#chat {
+  height:300px;
+  overflow-y:auto;
+  border:1px solid #333;
+  padding:10px;
+}
+
+.msg {
+  margin:5px 0;
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="login" class="container">
-  <h1>SemRosto</h1>
-  <p style="text-align:center">Goste de quem a pessoa é, não de como ela parece.</p>
-
-  <input id="email" placeholder="Email">
-  <input id="senha" type="password" placeholder="Senha">
-
-  <button onclick="entrar()">Entrar</button>
-  <button class="sec" onclick="criarConta()">Criar conta</button>
-
-  <p id="msg"></p>
+<!-- INTRO -->
+<div id="intro" class="card">
+  <h2>SemRosto</h2>
+  <p>
+    Goste de quem a pessoa é,<br>
+    não de como ela parece.<br><br>
+    Aqui você conversa primeiro.<br>
+    Aparência nunca vem antes da conexão.
+  </p>
+  <button onclick="intro.classList.add('hidden')">Entendi</button>
 </div>
 
-<!-- FEED -->
-<div id="feed" class="container" style="display:none">
-  <h2>Pessoas hoje</h2>
-  <div id="listaPerfis"></div>
+<!-- MENU -->
+<div class="menu hidden" id="menu">
+  <button onclick="mostrar('perfil')">👤</button>
+  <button onclick="mostrar('usuarios')">💬</button>
+  <button onclick="mostrar('pix')">❤️</button>
+</div>
 
-  <button onclick="abrirPerfil()">Meu perfil</button>
-  <button class="sec" onclick="logout()">Sair</button>
+<!-- AUTH -->
+<div id="auth" class="card">
+  <h3>Entrar ou criar conta</h3>
+  <input id="email" placeholder="Email">
+  <input id="senha" type="password" placeholder="Senha">
+  <button onclick="login()">Entrar</button>
 </div>
 
 <!-- PERFIL -->
-<div id="perfil" class="container" style="display:none">
-  <h2>Meu perfil</h2>
-
-  <input id="nome" placeholder="Nome anônimo">
-  <input id="idade" type="number" placeholder="Idade">
-
-  <textarea id="bio" placeholder="Escreva sobre você..."></textarea>
-  <textarea id="post" placeholder="O que aconteceu no seu dia hoje?"></textarea>
-
-  <p><b>Interesses</b></p>
-  <label><input type="checkbox" value="música"> Música</label><br>
-  <label><input type="checkbox" value="madrugada"> Madrugada</label><br>
-  <label><input type="checkbox" value="conversas profundas"> Conversas profundas</label><br>
-  <label><input type="checkbox" value="filosofia"> Filosofia</label><br>
-
+<div id="perfil" class="card hidden">
+  <h3>Seu perfil</h3>
+  <input id="nome" placeholder="Seu nome">
+  <textarea id="interesses" placeholder="O que você gosta?"></textarea>
+  <textarea id="dia" placeholder="Como foi seu dia?"></textarea>
   <button onclick="salvarPerfil()">Salvar</button>
-  <button class="sec" onclick="voltarFeed()">Voltar</button>
 </div>
 
-<!-- FIREBASE -->
+<!-- USUÁRIOS -->
+<div id="usuarios" class="card hidden">
+  <h3>Pessoas</h3>
+  <div id="listaUsuarios"></div>
+</div>
+
+<!-- CHAT -->
+<div id="chatBox" class="card hidden">
+  <h3 id="chatTitulo"></h3>
+  <div id="chat"></div>
+  <input id="mensagem" placeholder="Digite sua mensagem">
+  <button onclick="enviarMensagem()">Enviar</button>
+</div>
+
+<!-- PIX -->
+<div id="pix" class="card hidden">
+  <h3>Ajudar o desenvolvedor ❤️</h3>
+  <p>
+    Esse projeto é independente.<br>
+    Se quiser apoiar, envie qualquer valor via Pix.
+  </p>
+  <p><b>Chave Pix:</b><br>23be4842-00bd-4969-85e3-e45da27ffc03</p>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import {
-  getAuth, signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  onAuthStateChanged, signOut
-} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-import {
-  getFirestore, doc, setDoc,
-  getDoc, getDocs, collection
-} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, query, orderBy, onSnapshot } 
+from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBm7uwLhsmQsCqgwm1SucUBN24-IbkOayM",
@@ -128,87 +149,93 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const login = document.getElementById("login");
-const feed = document.getElementById("feed");
-const perfil = document.getElementById("perfil");
+let usuarioAtual = null;
+let chatId = null;
+
+window.mostrar = (id) => {
+  ["perfil","usuarios","chatBox","pix"].forEach(x => document.getElementById(x).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+};
+
+window.login = async () => {
+  try {
+    await signInWithEmailAndPassword(auth, email.value, senha.value);
+  } catch {
+    await createUserWithEmailAndPassword(auth, email.value, senha.value);
+  }
+};
 
 onAuthStateChanged(auth, async user => {
   if (user) {
-    login.style.display="none";
-    feed.style.display="block";
-    carregarPerfis();
-    const ref = doc(db,"users",user.uid);
+    usuarioAtual = user;
+    auth.classList.add("hidden");
+    menu.classList.remove("hidden");
+
+    const ref = doc(db, "usuarios", user.uid);
     const snap = await getDoc(ref);
-    if (snap.exists()) {
-      const d = snap.data();
-      nome.value = d.nome || "";
-      idade.value = d.idade || "";
-      bio.value = d.bio || "";
-      post.value = d.post || "";
-      document.querySelectorAll("input[type=checkbox]").forEach(c=>{
-        c.checked = d.interesses?.includes(c.value);
-      });
-    }
+
+    if (!snap.exists()) mostrar("perfil");
+    else carregarUsuarios();
   }
 });
 
-window.entrar = ()=> signInWithEmailAndPassword(auth,email.value,senha.value)
-  .catch(e=>msg.innerText=e.message);
-
-window.criarConta = ()=> createUserWithEmailAndPassword(auth,email.value,senha.value)
-  .catch(e=>msg.innerText=e.message);
-
-window.abrirPerfil = ()=>{
-  feed.style.display="none";
-  perfil.style.display="block";
-};
-
-window.voltarFeed = ()=>{
-  perfil.style.display="none";
-  feed.style.display="block";
-};
-
-window.salvarPerfil = async ()=>{
-  const u = auth.currentUser;
-  if(!u) return;
-
-  const interesses = [...document.querySelectorAll("input[type=checkbox]:checked")]
-    .map(i=>i.value);
-
-  await setDoc(doc(db,"users",u.uid),{
+window.salvarPerfil = async () => {
+  await setDoc(doc(db,"usuarios",usuarioAtual.uid),{
     nome:nome.value,
-    idade:idade.value,
-    bio:bio.value,
-    post:post.value,
-    interesses
+    interesses:interesses.value,
+    dia:dia.value,
+    mensagens:0,
+    nivel:1
   });
-
-  alert("Perfil salvo!");
-  voltarFeed();
-  carregarPerfis();
+  carregarUsuarios();
 };
 
-async function carregarPerfis(){
-  const lista = document.getElementById("listaPerfis");
-  lista.innerHTML="";
-  const snap = await getDocs(collection(db,"users"));
+async function carregarUsuarios() {
+  mostrar("usuarios");
+  listaUsuarios.innerHTML="";
+  const snap = await getDocs(collection(db,"usuarios"));
   snap.forEach(d=>{
-    const p=d.data();
-    if(p.nome){
-      lista.innerHTML += `
-        <div class="card">
-          <b>${p.nome}, ${p.idade||"?"}</b><br>
-          <small>${p.bio||""}</small><br><br>
-          <i>${p.post||""}</i>
-        </div>
-      `;
+    if(d.id!==usuarioAtual.uid){
+      const div=document.createElement("div");
+      div.innerText=d.data().nome+" — "+d.data().interesses;
+      div.onclick=()=>abrirChat(d.id,d.data().nome);
+      listaUsuarios.appendChild(div);
     }
   });
 }
 
-window.logout = async ()=>{
-  await signOut(auth);
-  location.reload();
+function abrirChat(uid,nome){
+  mostrar("chatBox");
+  chatTitulo.innerText="Conversando com "+nome;
+  chat.innerHTML="";
+  chatId=[usuarioAtual.uid,uid].sort().join("_");
+
+  const q=query(collection(db,"chats",chatId,"mensagens"),orderBy("data"));
+  onSnapshot(q,s=>{
+    chat.innerHTML="";
+    s.forEach(m=>{
+      const div=document.createElement("div");
+      div.className="msg";
+      div.innerText=m.data().texto;
+      chat.appendChild(div);
+    });
+  });
+}
+
+window.enviarMensagem = async ()=>{
+  if(!mensagem.value) return;
+  await addDoc(collection(db,"chats",chatId,"mensagens"),{
+    texto:mensagem.value,
+    data:Date.now()
+  });
+
+  const ref=doc(db,"usuarios",usuarioAtual.uid);
+  const snap=await getDoc(ref);
+  const total=(snap.data().mensagens||0)+1;
+  const nivel= total>=200 ? 3 : total>=50 ? 2 : 1;
+
+  await setDoc(ref,{mensagens:total,nivel:nivel},{merge:true});
+  mensagem.value="";
 };
 </script>
 
