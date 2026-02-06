@@ -1,67 +1,60 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>SemRosto</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>SemRosto</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f2f2f2;
+  margin:0;
+}
 
-    .container {
-      max-width: 420px;
-      margin: 50px auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 14px;
-      box-shadow: 0 0 10px rgba(0,0,0,.1);
-      text-align: center;
-    }
+.container {
+  max-width:420px;
+  margin:40px auto;
+  background:#fff;
+  padding:22px;
+  border-radius:14px;
+  box-shadow:0 0 10px rgba(0,0,0,.1);
+}
 
-    h1, h2 {
-      margin-bottom: 10px;
-    }
+h1,h2 { text-align:center; }
 
-    p {
-      color: #555;
-    }
+input, textarea {
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
 
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
+textarea { resize:none; height:80px; }
 
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #000;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-    }
+button {
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  background:#000;
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+}
 
-    button.secondary {
-      background: #666;
-    }
+button.sec { background:#666; }
 
-    .interest {
-      background: #eee;
-      padding: 10px;
-      border-radius: 8px;
-      margin: 6px 0;
-    }
-  </style>
+.card {
+  background:#eee;
+  padding:12px;
+  border-radius:10px;
+  margin:10px 0;
+}
+small { color:#666; }
+</style>
 </head>
 
 <body>
@@ -69,29 +62,24 @@
 <!-- LOGIN -->
 <div id="login" class="container">
   <h1>SemRosto</h1>
-  <p>Goste de quem a pessoa é, não de como ela parece.</p>
+  <p style="text-align:center">Goste de quem a pessoa é, não de como ela parece.</p>
 
-  <input id="email" type="email" placeholder="Email">
+  <input id="email" placeholder="Email">
   <input id="senha" type="password" placeholder="Senha">
 
   <button onclick="entrar()">Entrar</button>
-  <button class="secondary" onclick="criarConta()">Criar conta</button>
+  <button class="sec" onclick="criarConta()">Criar conta</button>
 
   <p id="msg"></p>
 </div>
 
 <!-- FEED -->
 <div id="feed" class="container" style="display:none">
-  <h2>Interesses das pessoas</h2>
-
-  <div class="interest">🎧 Gosta de música?</div>
-  <div class="interest">🌙 Prefere conversar de madrugada?</div>
-  <div class="interest">💭 Curte conversas profundas?</div>
-  <div class="interest">📚 Ama aprender coisas novas?</div>
-  <div class="interest">☕ Conversas longas sem pressa?</div>
+  <h2>Pessoas hoje</h2>
+  <div id="listaPerfis"></div>
 
   <button onclick="abrirPerfil()">Meu perfil</button>
-  <button class="secondary" onclick="logout()">Sair</button>
+  <button class="sec" onclick="logout()">Sair</button>
 </div>
 
 <!-- PERFIL -->
@@ -101,117 +89,127 @@
   <input id="nome" placeholder="Nome anônimo">
   <input id="idade" type="number" placeholder="Idade">
 
-  <p><strong>Interesses</strong></p>
+  <textarea id="bio" placeholder="Escreva sobre você..."></textarea>
+  <textarea id="post" placeholder="O que aconteceu no seu dia hoje?"></textarea>
+
+  <p><b>Interesses</b></p>
   <label><input type="checkbox" value="música"> Música</label><br>
   <label><input type="checkbox" value="madrugada"> Madrugada</label><br>
+  <label><input type="checkbox" value="conversas profundas"> Conversas profundas</label><br>
   <label><input type="checkbox" value="filosofia"> Filosofia</label><br>
-  <label><input type="checkbox" value="conversar"> Conversar</label><br>
 
   <button onclick="salvarPerfil()">Salvar</button>
-  <button class="secondary" onclick="voltarFeed()">Voltar</button>
+  <button class="sec" onclick="voltarFeed()">Voltar</button>
 </div>
 
 <!-- FIREBASE -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-  import {
-    getAuth,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-  import {
-    getFirestore,
-    doc,
-    setDoc,
-    getDoc
-  } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+import {
+  getFirestore, doc, setDoc,
+  getDoc, getDocs, collection
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBm7uwLhsmQsCqgwm1SucUBN24-IbkOayM",
-    authDomain: "semrosto-70293.firebaseapp.com",
-    projectId: "semrosto-70293",
-    storageBucket: "semrosto-70293.firebasestorage.app",
-    messagingSenderId: "1092743054662",
-    appId: "1:1092743054662:web:5765e25536cdfec825d147"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyBm7uwLhsmQsCqgwm1SucUBN24-IbkOayM",
+  authDomain: "semrosto-70293.firebaseapp.com",
+  projectId: "semrosto-70293",
+  storageBucket: "semrosto-70293.firebasestorage.app",
+  messagingSenderId: "1092743054662",
+  appId: "1:1092743054662:web:5765e25536cdfec825d147"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  const loginDiv = document.getElementById("login");
-  const feedDiv = document.getElementById("feed");
-  const perfilDiv = document.getElementById("perfil");
+const login = document.getElementById("login");
+const feed = document.getElementById("feed");
+const perfil = document.getElementById("perfil");
 
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      loginDiv.style.display = "none";
-      feedDiv.style.display = "block";
-
-      const ref = doc(db, "users", user.uid);
-      const snap = await getDoc(ref);
-
-      if (snap.exists()) {
-        const data = snap.data();
-        document.getElementById("nome").value = data.nome || "";
-        document.getElementById("idade").value = data.idade || "";
-
-        document.querySelectorAll("input[type=checkbox]").forEach(cb => {
-          cb.checked = data.interesses?.includes(cb.value);
-        });
-      }
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    login.style.display="none";
+    feed.style.display="block";
+    carregarPerfis();
+    const ref = doc(db,"users",user.uid);
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const d = snap.data();
+      nome.value = d.nome || "";
+      idade.value = d.idade || "";
+      bio.value = d.bio || "";
+      post.value = d.post || "";
+      document.querySelectorAll("input[type=checkbox]").forEach(c=>{
+        c.checked = d.interesses?.includes(c.value);
+      });
     }
+  }
+});
+
+window.entrar = ()=> signInWithEmailAndPassword(auth,email.value,senha.value)
+  .catch(e=>msg.innerText=e.message);
+
+window.criarConta = ()=> createUserWithEmailAndPassword(auth,email.value,senha.value)
+  .catch(e=>msg.innerText=e.message);
+
+window.abrirPerfil = ()=>{
+  feed.style.display="none";
+  perfil.style.display="block";
+};
+
+window.voltarFeed = ()=>{
+  perfil.style.display="none";
+  feed.style.display="block";
+};
+
+window.salvarPerfil = async ()=>{
+  const u = auth.currentUser;
+  if(!u) return;
+
+  const interesses = [...document.querySelectorAll("input[type=checkbox]:checked")]
+    .map(i=>i.value);
+
+  await setDoc(doc(db,"users",u.uid),{
+    nome:nome.value,
+    idade:idade.value,
+    bio:bio.value,
+    post:post.value,
+    interesses
   });
 
-  window.entrar = () => {
-    signInWithEmailAndPassword(
-      auth,
-      email.value,
-      senha.value
-    ).catch(e => msg.innerText = e.message);
-  };
+  alert("Perfil salvo!");
+  voltarFeed();
+  carregarPerfis();
+};
 
-  window.criarConta = () => {
-    createUserWithEmailAndPassword(
-      auth,
-      email.value,
-      senha.value
-    ).catch(e => msg.innerText = e.message);
-  };
+async function carregarPerfis(){
+  const lista = document.getElementById("listaPerfis");
+  lista.innerHTML="";
+  const snap = await getDocs(collection(db,"users"));
+  snap.forEach(d=>{
+    const p=d.data();
+    if(p.nome){
+      lista.innerHTML += `
+        <div class="card">
+          <b>${p.nome}, ${p.idade||"?"}</b><br>
+          <small>${p.bio||""}</small><br><br>
+          <i>${p.post||""}</i>
+        </div>
+      `;
+    }
+  });
+}
 
-  window.abrirPerfil = () => {
-    feedDiv.style.display = "none";
-    perfilDiv.style.display = "block";
-  };
-
-  window.voltarFeed = () => {
-    perfilDiv.style.display = "none";
-    feedDiv.style.display = "block";
-  };
-
-  window.salvarPerfil = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const interesses = [...document.querySelectorAll("input[type=checkbox]:checked")]
-      .map(i => i.value);
-
-    await setDoc(doc(db, "users", user.uid), {
-      nome: nome.value,
-      idade: idade.value,
-      interesses
-    });
-
-    alert("Perfil salvo!");
-    voltarFeed();
-  };
-
-  window.logout = async () => {
-    await signOut(auth);
-    location.reload();
-  };
+window.logout = async ()=>{
+  await signOut(auth);
+  location.reload();
+};
 </script>
 
 </body>
