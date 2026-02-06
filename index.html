@@ -6,144 +6,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: system-ui, sans-serif;
-}
-
-body {
-  background: #f4f4f4;
-  color: #111;
-}
-
-/* MODAL INICIAL */
-#modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
-
-.modal-box {
-  background: #fff;
-  padding: 25px;
-  border-radius: 14px;
-  max-width: 420px;
-  text-align: center;
-}
-
-.modal-box h2 {
-  margin-bottom: 10px;
-}
-
-.modal-box p {
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.modal-box button {
-  margin-top: 15px;
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: #111;
-  color: #fff;
-}
-
-/* MENU */
-#menu {
-  position: fixed;
-  top: 0;
-  left: -260px;
-  width: 260px;
-  height: 100%;
-  background: #fff;
-  padding: 20px;
-  box-shadow: 4px 0 20px rgba(0,0,0,.1);
-  transition: .3s;
-  z-index: 5;
-}
-
-#menu.active {
-  left: 0;
-}
-
-.pix {
-  background: #eee;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  margin-top: 10px;
-  word-break: break-all;
-}
-
-/* HEADER */
-header {
-  display: flex;
-  align-items: center;
-  padding: 15px;
-  background: #fff;
-  box-shadow: 0 2px 10px rgba(0,0,0,.05);
-}
-
-.menu-btn {
-  font-size: 1.5rem;
-  margin-right: 15px;
-}
-
-/* TELAS */
-.screen {
-  display: none;
-  padding: 25px;
-  max-width: 420px;
-  margin: auto;
-  text-align: center;
-}
-
-.screen.active {
-  display: block;
-}
-
-input, button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-}
-
-button {
-  background: #111;
-  color: #fff;
-  border: none;
-}
-
-/* CHAT */
-.chat {
-  background: #fff;
-  padding: 15px;
-  border-radius: 12px;
-  height: 250px;
-  overflow-y: auto;
-  text-align: left;
-  margin-bottom: 10px;
-}
-
-.msg {
-  margin-bottom: 8px;
-}
-
-.level {
-  font-size: 0.9rem;
-  color: #555;
-  margin-bottom: 10px;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
+body{background:#f4f4f4;color:#111}
+header{display:flex;align-items:center;padding:15px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.menu-btn{font-size:1.5rem;margin-right:15px;cursor:pointer}
+.screen{display:none;padding:25px;max-width:420px;margin:auto;text-align:center}
+.screen.active{display:block}
+input,button{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:1px solid #ccc}
+button{background:#111;color:#fff;border:none}
+.chat{background:#fff;padding:15px;border-radius:12px;height:260px;overflow-y:auto;text-align:left;margin-bottom:10px}
+.msg{margin-bottom:6px}
+#menu{position:fixed;top:0;left:-260px;width:260px;height:100%;background:#fff;padding:20px;box-shadow:4px 0 20px rgba(0,0,0,.1);transition:.3s;z-index:5}
+#menu.active{left:0}
+.pix{background:#eee;padding:10px;border-radius:8px;font-size:.85rem;margin-top:10px;word-break:break-all}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:10}
+.modal{background:#fff;padding:25px;border-radius:14px;max-width:420px;text-align:center}
 </style>
 </head>
 
@@ -151,10 +28,10 @@ button {
 
 <!-- MODAL -->
 <div id="modal">
-  <div class="modal-box">
+  <div class="modal">
     <h2>SemRosto</h2>
     <p><strong>goste de quem a pessoa é, não de como ela parece.</strong></p>
-    <p>Converse antes de julgar. A aparência vem depois, se ambos quiserem.</p>
+    <p>Aqui a conversa vem antes da aparência.</p>
     <button onclick="fecharModal()">Entendi</button>
   </div>
 </div>
@@ -162,7 +39,7 @@ button {
 <!-- MENU -->
 <div id="menu">
   <h3>💛 Ajudar o desenvolvedor</h3>
-  <p>Projeto independente. Todo valor ajuda.</p>
+  <p>Projeto independente.</p>
   <div class="pix">
     Pix (PicPay):<br>
     23be4842-00bd-4969-85e3-e45da27ffc03
@@ -176,58 +53,80 @@ button {
 
 <!-- LOGIN -->
 <div id="login" class="screen active">
-  <h2>Entrar</h2>
-  <p>Entre pelo que você é.</p>
-  <input placeholder="Nome ou apelido">
-  <input type="password" placeholder="Senha">
-  <button onclick="entrar()">Entrar</button>
+  <h2>Entrar / Criar conta</h2>
+  <input id="email" placeholder="Email">
+  <input id="senha" type="password" placeholder="Senha">
+  <button onclick="login()">Entrar ou Criar</button>
 </div>
 
 <!-- APP -->
 <div id="app" class="screen">
-  <div class="level">Nível: <span id="nivel">1</span></div>
-
-  <div class="chat" id="chat">
-    <div class="msg"><strong>Anon:</strong> Oi, tudo bem?</div>
-  </div>
-
-  <input id="msg" placeholder="Digite sua mensagem">
+  <div class="chat" id="chat"></div>
+  <input id="mensagem" placeholder="Digite sua mensagem">
   <button onclick="enviar()">Enviar</button>
 </div>
 
-<script>
-let mensagens = 1;
-let nivel = 1;
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-function fecharModal() {
-  document.getElementById("modal").style.display = "none";
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyBm7uwLhsmQsCqgwm1SucUBN24-IbkOayM",
+  authDomain: "semrosto-70293.firebaseapp.com",
+  projectId: "semrosto-70293",
+  storageBucket: "semrosto-70293.appspot.com",
+  messagingSenderId: "1092743054662",
+  appId: "1:1092743054662:web:5765e25536cdfec825d147"
+};
 
-function toggleMenu() {
-  document.getElementById("menu").classList.toggle("active");
-}
+const appFirebase = initializeApp(firebaseConfig);
+const auth = getAuth(appFirebase);
+const db = getFirestore(appFirebase);
 
-function entrar() {
-  document.getElementById("login").classList.remove("active");
-  document.getElementById("app").classList.add("active");
-}
-
-function enviar() {
-  let texto = document.getElementById("msg").value;
-  if (!texto) return;
-
-  let chat = document.getElementById("chat");
-  chat.innerHTML += `<div class="msg"><strong>Você:</strong> ${texto}</div>`;
-  document.getElementById("msg").value = "";
-
-  mensagens++;
-  if (mensagens % 5 === 0) {
-    nivel++;
-    document.getElementById("nivel").innerText = nivel;
+window.login = async function() {
+  const email = email.value;
+  const senha = senha.value;
+  try {
+    await signInWithEmailAndPassword(auth, email, senha);
+  } catch {
+    await createUserWithEmailAndPassword(auth, email, senha);
   }
+};
 
-  chat.scrollTop = chat.scrollHeight;
+onAuthStateChanged(auth, user => {
+  if (user) {
+    login.classList.remove("active");
+    app.classList.add("active");
+    carregarMensagens();
+  }
+});
+
+window.enviar = async function() {
+  if (!mensagem.value) return;
+  await addDoc(collection(db, "mensagens"), {
+    texto: mensagem.value,
+    uid: auth.currentUser.uid,
+    data: serverTimestamp()
+  });
+  mensagem.value = "";
+};
+
+function carregarMensagens() {
+  const q = query(collection(db, "mensagens"), orderBy("data"));
+  onSnapshot(q, snap => {
+    chat.innerHTML = "";
+    snap.forEach(doc => {
+      const m = doc.data();
+      chat.innerHTML += `<div class="msg">${m.texto}</div>`;
+    });
+    chat.scrollTop = chat.scrollHeight;
+  });
 }
+
+window.fecharModal = () => modal.style.display = "none";
+window.toggleMenu = () => menu.classList.toggle("active");
 </script>
 
 </body>
