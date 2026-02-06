@@ -6,20 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    /* RESET BÁSICO */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     }
 
     body {
-      background: #ffffff;
+      background: #fafafa;
       color: #111;
     }
 
-    /* SPLASH SCREEN */
+    /* SPLASH */
     #splash {
       position: fixed;
       inset: 0;
@@ -48,55 +47,65 @@
       }
     }
 
-    /* CONTEÚDO PRINCIPAL */
     main {
-      padding: 30px 20px;
-      max-width: 600px;
+      max-width: 680px;
       margin: auto;
+      padding: 40px 20px;
       text-align: center;
     }
 
-    main h2 {
-      font-size: 2rem;
+    h2 {
+      font-size: 2.2rem;
       margin-bottom: 10px;
     }
 
-    main p {
+    .slogan {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 30px;
+    }
+
+    section {
+      background: #fff;
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    section h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    section p {
       font-size: 1rem;
       line-height: 1.6;
-      margin-bottom: 20px;
       color: #333;
     }
 
-    .divider {
-      height: 1px;
-      background: #ddd;
-      margin: 30px 0;
-    }
-
-    /* APOIO */
-    .apoio h3 {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
+    .btn {
+      display: block;
+      margin-top: 15px;
+      text-align: center;
+      padding: 12px;
+      border-radius: 10px;
+      background: #111;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
     }
 
     .pix {
       background: #f5f5f5;
-      padding: 15px;
+      padding: 12px;
       border-radius: 8px;
       font-size: 0.9rem;
       word-break: break-all;
-      margin-bottom: 10px;
+      margin-top: 10px;
     }
 
-    .saiba-mais {
-      font-size: 0.85rem;
-      color: #555;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    /* RODAPÉ */
     footer {
       text-align: center;
       font-size: 0.8rem;
@@ -108,7 +117,6 @@
 
 <body>
 
-  <!-- SPLASH SCREEN -->
   <div id="splash">
     <h1>
       goste de quem a pessoa é,<br>
@@ -116,33 +124,34 @@
     </h1>
   </div>
 
-  <!-- CONTEÚDO -->
   <main>
     <h2>SemRosto</h2>
-    <p>
-      Um espaço para conhecer pessoas pela conversa, pelo tempo e pela conexão —  
-      sem fotos, sem pressa e sem julgamentos.
-    </p>
+    <div class="slogan">
+      goste de quem a pessoa é, não de como ela parece.
+    </div>
 
-    <div class="divider"></div>
+    <section>
+      <h3>🖤 O que é o SemRosto?</h3>
+      <p>
+        O SemRosto é um espaço para conhecer pessoas pela conversa,
+        pelo tempo e pela conexão. Aqui, a aparência não vem primeiro.
+      </p>
+      <a class="btn" href="como-funciona.html">Como funciona</a>
+    </section>
 
-    <div class="apoio">
+    <section>
       <h3>💛 Ajudar o desenvolvedor</h3>
       <p>
-        Este projeto é independente e feito com cuidado.<br>
-        Se quiser apoiar, você pode enviar <strong>qualquer valor</strong> via Pix.
+        Este projeto é independente. Se você quiser apoiar,
+        pode enviar qualquer valor via Pix.
         Todo o dinheiro é usado para manter e melhorar o app.
       </p>
-
       <div class="pix">
         <strong>Chave Pix (PicPay):</strong><br>
         23be4842-00bd-4969-85e3-e45da27ffc03
       </div>
-
-      <div class="saiba-mais">
-        Saiba mais sobre o Pix voluntário
-      </div>
-    </div>
+      <a class="btn" href="pix.html">Saiba mais sobre o Pix voluntário</a>
+    </section>
   </main>
 
   <footer>
