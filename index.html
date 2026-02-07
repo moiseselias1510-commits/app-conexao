@@ -1,90 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>SemRosto</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f0f0f;
-  color: #fff;
-}
+body{margin:0;font-family:Arial;background:#0f0f0f;color:#fff}
+.hidden{display:none}
 
-/* SPLASH */
-#splash {
-  position: fixed;
-  inset: 0;
-  background: #0f0f0f;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-#splash h1 { font-size: 32px; margin-bottom: 10px; }
-#splash p { opacity: 0.8; max-width: 400px; text-align: center; }
-#splash button {
-  margin-top: 30px;
-  padding: 12px 30px;
-  background: #6d5dfc;
-  border: none;
-  color: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-}
+#splash{
+position:fixed;inset:0;background:#0f0f0f;
+display:flex;flex-direction:column;
+justify-content:center;align-items:center;z-index:10}
 
-/* LOGIN */
-#auth {
-  max-width: 400px;
-  margin: 80px auto;
-}
-input, button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 6px;
-  border: none;
-}
-button {
-  background: #6d5dfc;
-  color: #fff;
-  cursor: pointer;
-}
+#auth{max-width:400px;margin:80px auto}
+input,button,textarea{
+width:100%;padding:12px;margin-top:10px;
+border-radius:6px;border:none}
+button{background:#6d5dfc;color:#fff;cursor:pointer}
 
-/* SIDEBAR */
-#sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 60px;
-  background: #000;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 20px;
-}
-#sidebar button {
-  width: 40px;
-  height: 40px;
-  margin: 10px 0;
-}
+#sidebar{
+position:fixed;left:0;top:0;bottom:0;
+width:60px;background:#000;
+display:none;flex-direction:column;align-items:center;padding-top:20px}
 
-/* APP */
-#app {
-  margin-left: 80px;
-  padding: 20px;
-  display: none;
-}
-.card {
-  background: #1c1c1c;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-.hidden { display: none; }
+#app{margin-left:80px;padding:20px;display:none}
+.card{background:#1c1c1c;padding:20px;border-radius:8px;margin-bottom:20px}
 </style>
 </head>
 
@@ -92,145 +33,140 @@ button {
 
 <!-- SPLASH -->
 <div id="splash">
-  <h1>SemRosto</h1>
-  <p><b>Goste de quem a pessoa é,<br>não de como ela parece.</b></p>
-  <p>Aqui você conversa primeiro. A aparência nunca vem antes da conexão.</p>
-  <button onclick="fecharSplash()">Entendi</button>
+<h1>SemRosto</h1>
+<p><b>Goste de quem a pessoa é,<br>não de como ela parece.</b></p>
+<button onclick="fecharSplash()">Entendi</button>
 </div>
 
-<!-- LOGIN -->
+<!-- AUTH -->
 <div id="auth">
-  <h2>Entrar ou criar conta</h2>
-  <input id="email" placeholder="Email">
-  <input id="senha" type="password" placeholder="Senha">
-  <button onclick="entrar()">Entrar</button>
-  <button onclick="criar()">Criar conta</button>
+<h2>Entrar</h2>
+<input id="email" placeholder="Email">
+<input id="senha" type="password" placeholder="Senha">
+<button onclick="entrar()">Entrar</button>
+<button onclick="criar()">Criar conta</button>
 </div>
 
 <!-- SIDEBAR -->
 <div id="sidebar">
-  <button onclick="mostrar('perfil')">👤</button>
-  <button onclick="mostrar('chat')">💬</button>
-  <button onclick="logout()">🚪</button>
+<button onclick="mostrarPerfil()">👤</button>
+<button onclick="mostrarChat()">💬</button>
+<button onclick="logout()">🚪</button>
 </div>
 
 <!-- APP -->
 <div id="app">
 
-  <div id="perfil" class="card hidden">
-    <h3>Meu perfil</h3>
-    <p id="nivelTxt"></p>
-    <textarea id="bio" placeholder="Sobre você"></textarea>
-    <textarea id="dia" placeholder="Como foi seu dia?"></textarea>
-    <button onclick="salvarPerfil()">Salvar</button>
-  </div>
+<div id="perfil" class="card hidden">
+<h3>Meu perfil</h3>
+<p id="nivelTxt"></p>
+<textarea id="bio" placeholder="Sobre você"></textarea>
+<textarea id="dia" placeholder="Como foi seu dia?"></textarea>
+<button onclick="salvarPerfil()">Salvar</button>
+</div>
 
-  <div id="chat" class="card hidden">
-    <h3>Chat (bloqueado por nível)</h3>
-    <p>Funcionalidade futura</p>
-  </div>
+<div id="chat" class="card hidden">
+<h3>Chat</h3>
+<p id="chatStatus"></p>
+</div>
 
 </div>
 
-<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
+getAuth,createUserWithEmailAndPassword,
+signInWithEmailAndPassword,onAuthStateChanged,signOut
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  serverTimestamp
+getFirestore,doc,setDoc,getDoc,updateDoc,serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBm7uwLhsmQsCqgwm1SucUBN24-IbkOayM",
-  authDomain: "semrosto-70293.firebaseapp.com",
-  projectId: "semrosto-70293",
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-let usuarioAtual = null;
-
-function calcularNivel(xp){
-  if(xp >= 250) return 3;
-  if(xp >= 100) return 2;
-  return 1;
-}
-
-window.fecharSplash = () => {
-  document.getElementById("splash").style.display = "none";
-};
-
-window.criar = async () => {
-  const email = email.value;
-  const senha = senha.value;
-  const cred = await createUserWithEmailAndPassword(auth, email, senha);
-  await setDoc(doc(db,"usuarios",cred.user.uid),{
-    xp:20,
-    nivel:1,
-    criadoEm:serverTimestamp()
-  });
-};
-
-window.entrar = async () => {
-  await signInWithEmailAndPassword(auth,email.value,senha.value);
-};
-
-onAuthStateChanged(auth, async (user)=>{
-  if(user){
-    usuarioAtual = user;
-    document.getElementById("auth").style.display="none";
-    document.getElementById("sidebar").style.display="flex";
-    document.getElementById("app").style.display="block";
-
-    const ref = doc(db,"usuarios",user.uid);
-    const snap = await getDoc(ref);
-    const data = snap.data();
-    nivelTxt.innerText = `Nível ${data.nivel} • XP ${data.xp}`;
-    mostrar("perfil");
-  } else {
-    usuarioAtual = null;
-    document.getElementById("sidebar").style.display="none";
-    document.getElementById("app").style.display="none";
-    document.getElementById("auth").style.display="block";
-  }
+const app = initializeApp({
+apiKey:"AIzaSyBm7uwLhsmQsCqgwm1SucUBN24-IbkOayM",
+authDomain:"semrosto-70293.firebaseapp.com",
+projectId:"semrosto-70293"
 });
 
-window.salvarPerfil = async ()=>{
-  if(!usuarioAtual) return;
-  const ref = doc(db,"usuarios",usuarioAtual.uid);
-  const snap = await getDoc(ref);
-  let xp = snap.data().xp + 10;
-  let nivel = calcularNivel(xp);
-  await updateDoc(ref,{
-    bio: bio.value,
-    dia: dia.value,
-    xp,
-    nivel
-  });
-  nivelTxt.innerText = `Nível ${nivel} • XP ${xp}`;
+const auth = getAuth(app);
+const db = getFirestore(app);
+let usuarioAtual = null;
+let dadosUsuario = null;
+
+const nivelMinChat = 2;
+
+function nivelPorXP(xp){
+if(xp>=100) return 2;
+if(xp>=250) return 3;
+return 1;
+}
+
+window.fecharSplash=()=>splash.style.display="none";
+
+window.criar=async()=>{
+const c=await createUserWithEmailAndPassword(auth,email.value,senha.value);
+await setDoc(doc(db,"usuarios",c.user.uid),{
+xp:20,nivel:1,criadoEm:serverTimestamp()
+});
 };
 
-window.mostrar = (id)=>{
-  document.querySelectorAll(".card").forEach(c=>c.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
+window.entrar=()=>signInWithEmailAndPassword(auth,email.value,senha.value);
+
+onAuthStateChanged(auth,async(user)=>{
+if(!user){
+usuarioAtual=null;
+sidebar.style.display="none";
+app.style.display="none";
+auth.style.display="block";
+return;
+}
+
+usuarioAtual=user;
+auth.style.display="none";
+sidebar.style.display="flex";
+app.style.display="block";
+
+const ref=doc(db,"usuarios",user.uid);
+const snap=await getDoc(ref);
+dadosUsuario=snap.data();
+
+nivelTxt.innerText=`Nível ${dadosUsuario.nivel} • XP ${dadosUsuario.xp}`;
+mostrarPerfil();
+});
+
+window.mostrarPerfil=()=>{
+if(!usuarioAtual) return;
+perfil.classList.remove("hidden");
+chat.classList.add("hidden");
 };
 
-window.logout = async ()=>{
-  await signOut(auth);
+window.mostrarChat=()=>{
+if(!usuarioAtual) return;
+perfil.classList.add("hidden");
+chat.classList.remove("hidden");
+
+if(dadosUsuario.nivel<nivelMinChat){
+chatStatus.innerText=`🔒 Chat liberado no nível ${nivelMinChat}`;
+}else{
+chatStatus.innerText="✅ Chat desbloqueado (em breve)";
+}
 };
+
+window.salvarPerfil=async()=>{
+if(!usuarioAtual) return;
+
+dadosUsuario.xp+=10;
+dadosUsuario.nivel=nivelPorXP(dadosUsuario.xp);
+
+await updateDoc(doc(db,"usuarios",usuarioAtual.uid),{
+bio:bio.value,dia:dia.value,
+xp:dadosUsuario.xp,nivel:dadosUsuario.nivel
+});
+
+nivelTxt.innerText=`Nível ${dadosUsuario.nivel} • XP ${dadosUsuario.xp}`;
+};
+
+window.logout=()=>signOut(auth);
 </script>
 
 </body>
