@@ -3,138 +3,120 @@
 <head>
 <meta charset="UTF-8">
 <title>SemRosto</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body {
-  margin:0;
-  font-family: Arial, sans-serif;
-  background:#0f0f0f;
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:#0f0f0f;color:#fff;display:flex}
+.hidden{display:none}
+
+aside{
+  width:70px;
+  background:#111;
+  padding:10px;
+}
+aside button{
+  width:100%;
+  margin-bottom:10px;
+  background:#6c5ce7;
+  border:none;
   color:#fff;
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
 }
 
-.hidden { display:none; }
+main{
+  flex:1;
+  padding:20px;
+}
 
-.card {
+.card{
   background:#1b1b1b;
   padding:20px;
-  margin:20px;
-  border-radius:10px;
+  border-radius:12px;
+  margin-bottom:15px;
 }
 
-input, textarea, button {
+input,textarea,button{
   width:100%;
+  margin:6px 0;
   padding:10px;
-  margin-top:10px;
+  border-radius:8px;
   border:none;
-  border-radius:6px;
 }
 
-button {
-  background:#6a5acd;
+button{
+  background:#6c5ce7;
   color:#fff;
   cursor:pointer;
 }
 
-.menu {
+/* TELA DE APRESENTAÇÃO */
+#intro{
   position:fixed;
-  left:0;
-  top:0;
-  width:60px;
-  height:100%;
-  background:#000;
+  inset:0;
+  background:#0f0f0f;
   display:flex;
-  flex-direction:column;
   align-items:center;
-  padding-top:10px;
+  justify-content:center;
+  z-index:10;
 }
-
-.menu button {
-  width:40px;
-  margin:10px 0;
-  font-size:18px;
-}
-
-#chat {
-  height:300px;
-  overflow-y:auto;
-  border:1px solid #333;
-  padding:10px;
-}
-
-.msg {
-  margin:5px 0;
-}
+#intro .card{text-align:center;max-width:400px}
 </style>
 </head>
 
 <body>
 
 <!-- INTRO -->
-<div id="intro" class="card">
-  <h2>SemRosto</h2>
-  <p>
-    Goste de quem a pessoa é,<br>
-    não de como ela parece.<br><br>
-    Aqui você conversa primeiro.<br>
-    Aparência nunca vem antes da conexão.
-  </p>
-  <button onclick="intro.classList.add('hidden')">Entendi</button>
+<div id="intro">
+  <div class="card">
+    <h1>SemRosto</h1>
+    <p><b>Goste de quem a pessoa é,<br>não de como ela parece.</b></p>
+    <p>Aqui você conversa primeiro.<br>A aparência nunca vem antes da conexão.</p>
+    <button onclick="fecharIntro()">Entendi</button>
+  </div>
 </div>
 
-<!-- MENU -->
-<div class="menu hidden" id="menu">
-  <button onclick="mostrar('perfil')">👤</button>
-  <button onclick="mostrar('usuarios')">💬</button>
-  <button onclick="mostrar('pix')">❤️</button>
-</div>
+<aside>
+  <button onclick="mostrar('login')">👤</button>
+  <button onclick="mostrar('feed')">💬</button>
+  <button onclick="mostrar('perfil')">❤️</button>
+</aside>
 
-<!-- AUTH -->
-<div id="auth" class="card">
-  <h3>Entrar ou criar conta</h3>
+<main>
+
+<!-- LOGIN -->
+<div id="login" class="card">
+  <h2>Entrar ou criar conta</h2>
   <input id="email" placeholder="Email">
   <input id="senha" type="password" placeholder="Senha">
-  <button onclick="login()">Entrar</button>
+  <button onclick="entrar()">Entrar</button>
+  <button onclick="criar()">Criar conta</button>
+  <p id="msg"></p>
+</div>
+
+<!-- FEED -->
+<div id="feed" class="hidden">
+  <h2>Pessoas</h2>
+  <div id="lista"></div>
 </div>
 
 <!-- PERFIL -->
-<div id="perfil" class="card hidden">
-  <h3>Seu perfil</h3>
-  <input id="nome" placeholder="Seu nome">
+<div id="perfil" class="hidden">
+  <h2>Meu perfil</h2>
   <textarea id="interesses" placeholder="O que você gosta?"></textarea>
   <textarea id="dia" placeholder="Como foi seu dia?"></textarea>
   <button onclick="salvarPerfil()">Salvar</button>
 </div>
 
-<!-- USUÁRIOS -->
-<div id="usuarios" class="card hidden">
-  <h3>Pessoas</h3>
-  <div id="listaUsuarios"></div>
-</div>
+</main>
 
-<!-- CHAT -->
-<div id="chatBox" class="card hidden">
-  <h3 id="chatTitulo"></h3>
-  <div id="chat"></div>
-  <input id="mensagem" placeholder="Digite sua mensagem">
-  <button onclick="enviarMensagem()">Enviar</button>
-</div>
-
-<!-- PIX -->
-<div id="pix" class="card hidden">
-  <h3>Ajudar o desenvolvedor ❤️</h3>
-  <p>
-    Esse projeto é independente.<br>
-    Se quiser apoiar, envie qualquer valor via Pix.
-  </p>
-  <p><b>Chave Pix:</b><br>23be4842-00bd-4969-85e3-e45da27ffc03</p>
-</div>
-
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } 
-from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, query, orderBy, onSnapshot } 
-from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBm7uwLhsmQsCqgwm1SucUBN24-IbkOayM",
@@ -149,94 +131,66 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let usuarioAtual = null;
-let chatId = null;
+let usuario = null;
 
-window.mostrar = (id) => {
-  ["perfil","usuarios","chatBox","pix"].forEach(x => document.getElementById(x).classList.add("hidden"));
+window.fecharIntro = ()=> intro.style.display="none";
+
+window.mostrar = (id)=>{
+  document.querySelectorAll("main > div").forEach(d=>d.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
-};
+}
 
-window.login = async () => {
-  try {
-    await signInWithEmailAndPassword(auth, email.value, senha.value);
-  } catch {
-    await createUserWithEmailAndPassword(auth, email.value, senha.value);
+window.entrar = async ()=>{
+  try{
+    await signInWithEmailAndPassword(auth,email.value,senha.value);
+    msg.innerText="✅ Entrou com sucesso!";
+  }catch(e){
+    msg.innerText=e.message;
   }
-};
+}
 
-onAuthStateChanged(auth, async user => {
-  if (user) {
-    usuarioAtual = user;
-    auth.classList.add("hidden");
-    menu.classList.remove("hidden");
-
-    const ref = doc(db, "usuarios", user.uid);
-    const snap = await getDoc(ref);
-
-    if (!snap.exists()) mostrar("perfil");
-    else carregarUsuarios();
+window.criar = async ()=>{
+  try{
+    await createUserWithEmailAndPassword(auth,email.value,senha.value);
+    msg.innerText="Conta criada!";
+  }catch(e){
+    msg.innerText=e.message;
   }
-});
+}
 
-window.salvarPerfil = async () => {
-  await setDoc(doc(db,"usuarios",usuarioAtual.uid),{
-    nome:nome.value,
-    interesses:interesses.value,
-    dia:dia.value,
-    mensagens:0,
-    nivel:1
+window.salvarPerfil = async ()=>{
+  if(!usuario) return;
+  await setDoc(doc(db,"usuarios",usuario.uid),{
+    interesses: interesses.value,
+    dia: dia.value
   });
-  carregarUsuarios();
-};
+  alert("Perfil salvo!");
+}
 
-async function carregarUsuarios() {
-  mostrar("usuarios");
-  listaUsuarios.innerHTML="";
+async function carregarFeed(){
+  lista.innerHTML="";
   const snap = await getDocs(collection(db,"usuarios"));
   snap.forEach(d=>{
-    if(d.id!==usuarioAtual.uid){
-      const div=document.createElement("div");
-      div.innerText=d.data().nome+" — "+d.data().interesses;
-      div.onclick=()=>abrirChat(d.id,d.data().nome);
-      listaUsuarios.appendChild(div);
-    }
+    const u=d.data();
+    const c=document.createElement("div");
+    c.className="card";
+    c.innerHTML=`
+      <p><b>Interesses:</b><br>${u.interesses||""}</p>
+      <p><b>Hoje:</b><br>${u.dia||""}</p>
+    `;
+    lista.appendChild(c);
   });
 }
 
-function abrirChat(uid,nome){
-  mostrar("chatBox");
-  chatTitulo.innerText="Conversando com "+nome;
-  chat.innerHTML="";
-  chatId=[usuarioAtual.uid,uid].sort().join("_");
-
-  const q=query(collection(db,"chats",chatId,"mensagens"),orderBy("data"));
-  onSnapshot(q,s=>{
-    chat.innerHTML="";
-    s.forEach(m=>{
-      const div=document.createElement("div");
-      div.className="msg";
-      div.innerText=m.data().texto;
-      chat.appendChild(div);
-    });
-  });
-}
-
-window.enviarMensagem = async ()=>{
-  if(!mensagem.value) return;
-  await addDoc(collection(db,"chats",chatId,"mensagens"),{
-    texto:mensagem.value,
-    data:Date.now()
-  });
-
-  const ref=doc(db,"usuarios",usuarioAtual.uid);
-  const snap=await getDoc(ref);
-  const total=(snap.data().mensagens||0)+1;
-  const nivel= total>=200 ? 3 : total>=50 ? 2 : 1;
-
-  await setDoc(ref,{mensagens:total,nivel:nivel},{merge:true});
-  mensagem.value="";
-};
+onAuthStateChanged(auth,(u)=>{
+  usuario=u;
+  if(u){
+    mostrar("feed");
+    carregarFeed();
+  }else{
+    mostrar("login");
+  }
+});
 </script>
 
 </body>
